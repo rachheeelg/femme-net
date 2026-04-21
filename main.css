@@ -1,0 +1,226 @@
+@font-face {
+  font-family: "CatalogueLLTrialWeb-Regular";
+  src: url(/assets/CatalogueLLTrialWeb-Regular.woff2) format('woff2');
+}
+
+body {
+    margin:0;
+    padding:0;
+}
+
+.buttons {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10
+}
+
+.about-btn {
+  padding: 15px;
+  color: white;
+  background-color: black;
+  cursor: pointer;
+  border-radius: 50px;
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  font-size: 15px;
+  border: 3px dashed white;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.about-btn:hover {
+  transition: scale(1.05) ease;
+  color: black;
+  background-color: #FF6ED6;
+  border: 3px dashed black;
+
+}
+
+.contribute-btn {
+  padding: 15px;
+  color: white;
+  background-color: black;
+  cursor: pointer;
+  border-radius: 50px;
+  font-size: 15px;
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  border: 3px dashed white;
+}
+
+.contribute-btn:hover {
+  transition: scale(1.05) ease;
+  color: black;
+  background-color: #FF6ED6;
+  border: 3px dashed black;
+
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 600px;
+  height: 100vh;
+  background: #FF6ED6;
+  border-top-right-radius: 20px;
+  color: black;
+  border: 3px dashed black;
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  padding: 2rem;
+  transform: translateX(-100%);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: black;
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+
+/* ============================================================
+   PASTE THIS INTO YOUR main.css
+   ============================================================ */
+
+/* main node card */
+#node-card {
+  position: fixed;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%) translateX(110%);
+  width: 400px;
+  background: #000000;
+  border: 5px dashed #ffffff;
+  border-radius: 25px;
+  padding: 2rem;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  z-index: 6;
+}
+
+#node-card.visible {
+  transform: translateY(-50%) translateX(0%);
+}
+
+#card-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+#card-close:hover {
+  color: #fff;
+}
+
+#card-category {
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 0.8rem;
+  font-weight: 600;
+}
+
+#card-title {
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  font-size: 1.4rem;
+  color: #FF6ED6;;
+  margin: 0 0 0.4rem 0;
+  line-height: 1.2;
+}
+
+#card-subheader {
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  font-size: 0.85rem;
+  color: #D9D9D9;
+  margin: 0 0 0.5rem 0;
+  font-style: italic;
+}
+
+#card-meta {
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  font-size: 0.75rem;
+  color: #D9D9D9;
+  margin-bottom: 0.7rem;
+  display: flex;
+  gap: 0.4rem;
+}
+
+#card-contribution {
+  font-family: 'CatalogueLLTrialWeb-Regular',serif;
+  font-size: 0.82rem;
+  color: white;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.curated-node:hover image {
+    filter: brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1);
+}
+
+/* User node labels — visible on hover only */
+.user-label {
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  font-size:1 rem;
+  font-family: "CatalogueLLTrialWeb-Regular",serif;
+  color:black;
+}
+
+.user-node:hover .user-label {
+  opacity: 1;
+}
+
+.noise {
+  position: relative;
+  margin: 0 auto;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #D9D9D9;
+}
+
+.noise::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url(/assets/noise.png);
+  background-size: 200px 200px;
+  pointer-events: none;
+  animation: noise 0.75s steps(1) infinite;
+  z-index: 1;
+  opacity: 0.5; 
+}
+
+#graph {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 4;
+}
+
+#graph svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
