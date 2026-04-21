@@ -1,6 +1,7 @@
 @font-face {
-  font-family: "CatalogueLLTrialWeb-Regular";
-  src: url(CatalogueLLTrialWeb-Regular.woff2) format('woff2');
+    font-family: 'CatalogueLLTrial';
+    src: url('CatalogueLLTrialWeb-Regular.woff2') format('woff2');
+    font-display: swap;
 }
 
 body {
@@ -203,7 +204,7 @@ body {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url(noise.png);
+    background-image: url('noise.png');
   background-size: 200px 200px;
   pointer-events: none;
   animation: noise 0.75s steps(1) infinite;
