@@ -4,6 +4,12 @@
     font-display: swap;
 }
 
+h2 {
+  font-family: 'CatalogueLLTrialWeb-Regular', serif;
+  font-size: 3rem;
+  color: black;
+  letter-spacing: -0.03em;
+}
 
 *, *::before, *::after {
     box-sizing: border-box;
@@ -122,7 +128,7 @@ body {
     top: 50%;
     right: 2rem;
     transform: translateY(-50%) translateX(110%);
-    width: 400px;
+    width: 500px;
     background: #000000;
     border: 5px dashed #ffffff;
     border-radius: 25px;
@@ -248,4 +254,49 @@ body {
         font-size: 13px;
     }
 
+}
+
+/* Image box — separate from card, sits on the left */
+#node-image-box {
+  position: fixed;
+  top: 50%;
+  left: 2rem;
+  transform: translateY(-50%) translateX(-110%);
+  width: 500px;
+  height: 500px;
+  background: #000;
+  border: 5px dashed #ffffff;
+  border-radius: 25px;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 6;
+}
+
+#card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#node-image-box.visible {
+  transform: translateY(-50%) translateX(0%);
+}
+
+@media (max-width: 768px) {
+  #node-image-box {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 40vh;
+    transform: translateY(110%);
+    border-radius: 16px 16px 0 0;
+  }
+
+  #node-image-box.visible {
+    transform: translateY(0%);
+  }
 }

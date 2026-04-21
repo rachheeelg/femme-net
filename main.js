@@ -4,7 +4,7 @@
 const CURATED_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuAwVS6S8Ms1CIXHVODFuGZ50y-34RqIS3DgBIudsHqpY-t5P-3FTrdkdH5VrETKkrwins925IQDZG/pub?gid=0&single=true&output=csv";
 const USER_CSV_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuAwVS6S8Ms1CIXHVODFuGZ50y-34RqIS3DgBIudsHqpY-t5P-3FTrdkdH5VrETKkrwins925IQDZG/pub?gid=1023793574&single=true&output=csv";
 const CACHE_KEY       = "femme_data_cache";
-const CACHE_TTL       = 5 * 60 * 1000; // 5 minutes in ms
+const CACHE_TTL       = 5 * 60 * 1000;
 
 // ============================================================
 // LARGE NODE SVGs — 5 variants, rotates across all curated nodes
@@ -39,13 +39,18 @@ const USER_NODE_SVGS = {
 };
 
 // ============================================================
-// CATEGORY COLORS — for dashed hover lines
+// CATEGORY COLORS
 // ============================================================
 const CATEGORY_COLORS = {
   "Computer Science Pioneers": "#ff6ed6",
   "Cyberfeminist Narrators":   "#f9e955",
   "CyberCommunity Builder":    "#7ff757",
 };
+
+// ============================================================
+// MOBILE DETECTION
+// ============================================================
+const IS_MOBILE = window.innerWidth <= 768;
 
 // ============================================================
 // CSV PARSER
@@ -89,25 +94,18 @@ function parseCSVLine(line) {
 
 // ============================================================
 // FETCH WITH CACHE
-// Serves from localStorage on repeat visits, re-fetches in background
 // ============================================================
 async function fetchData() {
-  // Check cache first
   try {
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       const { timestamp, curated, userContributions } = JSON.parse(cached);
       if (Date.now() - timestamp < CACHE_TTL) {
-        // Serve from cache instantly, refresh in background
         refreshCacheInBackground();
         return { curated, userContributions };
       }
     }
-  } catch (e) {
-    // Cache read failed, proceed with fresh fetch
-  }
-
-  // Fresh fetch
+  } catch (e) {}
   return await fetchFromNetwork();
 }
 
@@ -122,54 +120,50 @@ async function fetchFromNetwork() {
   ]);
   const curated           = parseCSV(curatedText);
   const userContributions = parseCSV(userText);
-
-  // Save to cache
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({
       timestamp: Date.now(),
       curated,
       userContributions,
     }));
-  } catch (e) {
-    // Cache write failed, not critical
-  }
-
+  } catch (e) {}
   return { curated, userContributions };
 }
 
 function refreshCacheInBackground() {
-  setTimeout(() => {
-    fetchFromNetwork().catch(() => {});
-  }, 100);
+  setTimeout(() => { fetchFromNetwork().catch(() => {}); }, 100);
 }
 
 // ============================================================
 // BUILD GRAPH DATA
-// Phyllotaxis spiral — evenly spread, no grid, no rows
 // ============================================================
 function buildGraphData(curated, userContributions, viewW, viewH) {
   const nodes = [];
   const links = [];
 
   const padding     = 120;
-  const cx          = viewW / 2;
-  const cy          = viewH / 2;
   const goldenAngle = 137.508 * (Math.PI / 180);
 
-  // Scale stretched outward — higher values = more spread
- const scaleX = (viewW / 2 - padding) / Math.sqrt(curated.length) * 1.2;
-const scaleY = (viewH / 2 - padding) / Math.sqrt(curated.length) * 1.1;
+  const canvasW = IS_MOBILE ? viewW * 2.5 : viewW;
+  const canvasH = IS_MOBILE ? viewH * 2.5 : viewH;
+  const cx      = canvasW / 2;
+  const cy      = canvasH / 2;
 
-  // ── Curated (large) nodes — phyllotaxis spiral ──
+  const scaleX = (canvasW / 2 - padding) / Math.sqrt(curated.length) * 1.2;
+  const scaleY = (canvasH / 2 - padding) / Math.sqrt(curated.length) * 1.1;
+
   curated.forEach((row, i) => {
     const keys        = Object.keys(row);
     const categoryKey = keys[5];
+    const imageKey    = keys[6];
 
     const angle  = i * goldenAngle;
     const radius = Math.sqrt(i + 1) * 1.4;
 
-    const x = Math.max(padding, Math.min(viewW - padding, cx + Math.cos(angle) * radius * scaleX));
-    const y = Math.max(padding, Math.min(viewH - padding, cy + Math.sin(angle) * radius * scaleY));
+    const x = Math.max(padding, Math.min(canvasW - padding, cx + Math.cos(angle) * radius * scaleX));
+    const y = Math.max(padding, Math.min(canvasH - padding, cy + Math.sin(angle) * radius * scaleY));
+
+    const imageFile = row[imageKey] || "";
 
     nodes.push({
       id:           row["Title"],
@@ -180,13 +174,13 @@ const scaleY = (viewH / 2 - padding) / Math.sqrt(curated.length) * 1.1;
       location:     row["Location"],
       contribution: row["Contribution"],
       category:     row[categoryKey] || "Uncategorized",
+      image:        imageFile ? `images/${imageFile}` : "",
       svgFile:      CATEGORY_SVGS[(i * 3 + Math.floor(i / 5)) % CATEGORY_SVGS.length],
       x,
       y,
     });
   });
 
-  // ── User (small) nodes — fanned around parent ──
   const userCountByParent = {};
 
   userContributions.forEach((row, i) => {
@@ -207,7 +201,7 @@ const scaleY = (viewH / 2 - padding) / Math.sqrt(curated.length) * 1.1;
     ).length;
 
     const angle    = (childIndex / Math.max(totalChildren, 1)) * 2 * Math.PI - Math.PI / 2;
-    const radius   = 80;
+    const radius   = IS_MOBILE ? 60 : 80;
     const variants = USER_NODE_SVGS[parent.category] || [];
     const svgFile  = variants[childIndex % variants.length] || "";
 
@@ -219,20 +213,28 @@ const scaleY = (viewH / 2 - padding) / Math.sqrt(curated.length) * 1.1;
       parentId: parentTitle,
       category: parent.category,
       svgFile:  svgFile,
-      x: Math.max(40, Math.min(viewW - 40, parent.x + Math.cos(angle) * radius)),
-      y: Math.max(40, Math.min(viewH - 40, parent.y + Math.sin(angle) * radius)),
+      x: parent.x + Math.cos(angle) * radius,
+      y: parent.y + Math.sin(angle) * radius,
     });
 
     links.push({ source: parentTitle, target: nodeId });
   });
 
-  return { nodes, links };
+  return { nodes, links, canvasW, canvasH };
 }
 
 // ============================================================
-// CARD
+// CARD — two separate boxes
+// image box slides in from left, info card from right
 // ============================================================
 function createCard() {
+  // Image box — left side
+  const imageBox = document.createElement("div");
+  imageBox.id = "node-image-box";
+  imageBox.innerHTML = `<img id="card-image" src="" alt="" />`;
+  document.body.appendChild(imageBox);
+
+  // Info card — right side
   const card = document.createElement("div");
   card.id = "node-card";
   card.innerHTML = `
@@ -247,13 +249,19 @@ function createCard() {
     <div id="card-category"></div>
   `;
   document.body.appendChild(card);
+
+  // Close both boxes together
   document.getElementById("card-close").addEventListener("click", () => {
     card.classList.remove("visible");
+    imageBox.classList.remove("visible");
   });
 }
 
 function showCard(node) {
-  const card = document.getElementById("node-card");
+  const card     = document.getElementById("node-card");
+  const imageBox = document.getElementById("node-image-box");
+  const img      = document.getElementById("card-image");
+
   document.getElementById("card-title").textContent        = node.title;
   document.getElementById("card-subheader").textContent    = node.subheader || "";
   document.getElementById("card-year").textContent         = node.year || "";
@@ -261,13 +269,22 @@ function showCard(node) {
   document.getElementById("card-contribution").textContent = node.contribution || "";
   document.getElementById("card-category").textContent     = node.category;
   document.getElementById("card-category").style.color     = CATEGORY_COLORS[node.category] || "#000";
+
   card.classList.add("visible");
+
+  if (node.image) {
+    img.src = node.image;
+    img.alt = node.title;
+    imageBox.classList.add("visible");
+  } else {
+    imageBox.classList.remove("visible");
+  }
 }
 
 // ============================================================
 // DRAW GRAPH
 // ============================================================
-function drawGraph({ nodes, links }) {
+function drawGraph({ nodes, links, canvasW, canvasH }) {
   const container = document.getElementById("graph");
   const viewW     = container.clientWidth;
   const viewH     = container.clientHeight;
@@ -276,12 +293,28 @@ function drawGraph({ nodes, links }) {
     .select("#graph")
     .append("svg")
     .attr("width", viewW)
-    .attr("height", viewH);
+    .attr("height", viewH)
+    .style("cursor", IS_MOBILE ? "grab" : "default");
+
+  const g = svg.append("g");
+
+  if (IS_MOBILE) {
+    const initialX = -(canvasW / 2 - viewW / 2);
+    const initialY = -(canvasH / 2 - viewH / 2);
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.4, 2])
+      .on("zoom",  (event) => { g.attr("transform", event.transform); })
+      .on("start", () => svg.style("cursor", "grabbing"))
+      .on("end",   () => svg.style("cursor", "grab"));
+
+    svg.call(zoom);
+    svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY));
+  }
 
   const nodeById = new Map(nodes.map((n) => [n.id, n]));
 
-  // ── Links — hidden by default, dashed, revealed on parent hover ──
-  const linkLines = svg
+  const linkLines = g
     .append("g")
     .selectAll("line")
     .data(links)
@@ -303,8 +336,8 @@ function drawGraph({ nodes, links }) {
       .attr("y2", (d) => nodeById.get(d.target)?.y ?? 0);
   }
 
-  // ── Drag ──
   function makeDrag() {
+    if (IS_MOBILE) return d3.drag();
     return d3.drag()
       .on("start", (event) => {
         event.sourceEvent.stopPropagation();
@@ -318,8 +351,7 @@ function drawGraph({ nodes, links }) {
       });
   }
 
-  // ── Curated (large) nodes ──
-  const curatedGs = svg
+  const curatedGs = g
     .append("g")
     .selectAll("g.curated-node")
     .data(nodes.filter((d) => d.type === "curated"))
@@ -333,37 +365,39 @@ function drawGraph({ nodes, links }) {
       event.stopPropagation();
       showCard(d);
     })
-   .on("mouseover", (event, d) => {
-  linkLines
-    .filter((l) => {
-      const sourceId = l.source?.id ?? l.source;
-      return sourceId === d.id;
+    .on("mouseover", (event, d) => {
+      if (IS_MOBILE) return;
+      linkLines
+        .filter((l) => {
+          const sourceId = l.source?.id ?? l.source;
+          return sourceId === d.id;
+        })
+        .attr("stroke-opacity", 0.8);
+
+      d3.select(event.currentTarget).select("image")
+        .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
+
+      userGs
+        .filter((u) => u.parentId === d.id)
+        .selectAll("image")
+        .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
     })
-    .attr("stroke-opacity", 0.8);
+    .on("mouseout", () => {
+      if (IS_MOBILE) return;
+      linkLines.attr("stroke-opacity", 0);
+      curatedGs.selectAll("image").style("filter", null);
+      userGs.selectAll("image").style("filter", null);
+    });
 
-  d3.select(event.currentTarget).select("image")
-    .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
-
-  userGs
-    .filter((u) => u.parentId === d.id)
-    .selectAll("image")
-    .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
-})
-.on("mouseout", () => {
-  linkLines.attr("stroke-opacity", 0);
-  curatedGs.selectAll("image").style("filter", null);
-  userGs.selectAll("image").style("filter", null);
-});
   curatedGs.append("image")
     .attr("href", (d) => d.svgFile)
-    .attr("width", 90)
-    .attr("height", 90)
-    .attr("x", -45)
-    .attr("y", -45)
+    .attr("width", IS_MOBILE ? 70 : 90)
+    .attr("height", IS_MOBILE ? 70 : 90)
+    .attr("x", IS_MOBILE ? -35 : -45)
+    .attr("y", IS_MOBILE ? -35 : -45)
     .attr("opacity", 1);
 
-  // ── User (small) nodes ──
-  const userGs = svg
+  const userGs = g
     .append("g")
     .selectAll("g.user-node")
     .data(nodes.filter((d) => d.type === "user"))
@@ -380,10 +414,10 @@ function drawGraph({ nodes, links }) {
 
   userGs.append("image")
     .attr("href", (d) => d.svgFile)
-    .attr("width", 24)
-    .attr("height", 24)
-    .attr("x", -12)
-    .attr("y", -12)
+    .attr("width", IS_MOBILE ? 20 : 24)
+    .attr("height", IS_MOBILE ? 20 : 24)
+    .attr("x", IS_MOBILE ? -10 : -12)
+    .attr("y", IS_MOBILE ? -10 : -12)
     .attr("opacity", 1);
 
   userGs.append("title").text((d) => d.title);
@@ -397,9 +431,10 @@ function drawGraph({ nodes, links }) {
     .attr("class", "user-label")
     .attr("font-family", "inherit");
 
-  // Close card on background click
+  // Close both boxes on background click
   svg.on("click", () => {
     document.getElementById("node-card").classList.remove("visible");
+    document.getElementById("node-image-box").classList.remove("visible");
   });
 }
 
@@ -409,14 +444,11 @@ function drawGraph({ nodes, links }) {
 async function init() {
   createCard();
 
-  // Show loading state immediately
   document.getElementById("graph").innerHTML =
     '<p style="color:#333;padding:2rem;font-family:inherit;">Loading...</p>';
 
   try {
     const { curated, userContributions } = await fetchData();
-
-    // Clear loading state before drawing
     document.getElementById("graph").innerHTML = "";
 
     const container = document.getElementById("graph");
@@ -447,4 +479,4 @@ document.querySelector('.close-btn').addEventListener('click', () => {
   aboutSidebar.classList.remove('open');
 });
 
-console.log ("you found a hidden message! hey dev nerd:P")
+console.log("you found a hidden message! hey dev nerd :P");
