@@ -1,25 +1,19 @@
-// ============================================================
-// CONFIGURATION
-// ============================================================
+// set up
 const CURATED_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuAwVS6S8Ms1CIXHVODFuGZ50y-34RqIS3DgBIudsHqpY-t5P-3FTrdkdH5VrETKkrwins925IQDZG/pub?gid=0&single=true&output=csv";
 const USER_CSV_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuAwVS6S8Ms1CIXHVODFuGZ50y-34RqIS3DgBIudsHqpY-t5P-3FTrdkdH5VrETKkrwins925IQDZG/pub?gid=1023793574&single=true&output=csv";
 const CACHE_KEY       = "femme_data_cache";
 const CACHE_TTL       = 5 * 60 * 1000;
 
-// ============================================================
 // LARGE NODE SVGs — 5 variants, rotates across all curated nodes
-// ============================================================
+
 const CATEGORY_SVGS = [
   "assets/black ant large-01.svg",
   "assets/black ant large-02.svg",
   "assets/black ant large-03.svg",
   "assets/black ant large-04.svg",
   "assets/black ant large-05.svg",
-];
-
-// ============================================================
+]
 // SMALL NODE SVGs — 3 black variants, same across all categories
-// ============================================================
 const USER_NODE_SVGS = {
   "Computer Science Pioneers": [
     "assets/black-ants-01.svg",
@@ -38,23 +32,17 @@ const USER_NODE_SVGS = {
   ],
 };
 
-// ============================================================
-// CATEGORY COLORS
-// ============================================================
+// category colors for card text
 const CATEGORY_COLORS = {
   "Computer Science Pioneers": "#ff6ed6",
   "Cyberfeminist Narrators":   "#f9e955",
   "CyberCommunity Builder":    "#7ff757",
 };
 
-// ============================================================
 // MOBILE DETECTION
-// ============================================================
 const IS_MOBILE = window.innerWidth <= 768;
 
-// ============================================================
 // CSV PARSER
-// ============================================================
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = parseCSVLine(lines[0]);
@@ -92,9 +80,7 @@ function parseCSVLine(line) {
   return result;
 }
 
-// ============================================================
-// FETCH WITH CACHE
-// ============================================================
+// cache data to reduce g sheets loading time
 async function fetchData() {
   try {
     const cached = localStorage.getItem(CACHE_KEY);
@@ -134,9 +120,7 @@ function refreshCacheInBackground() {
   setTimeout(() => { fetchFromNetwork().catch(() => {}); }, 100);
 }
 
-// ============================================================
-// BUILD GRAPH DATA
-// ============================================================
+// graph data 
 function buildGraphData(curated, userContributions, viewW, viewH) {
   const nodes = [];
   const links = [];
@@ -223,10 +207,8 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
   return { nodes, links, canvasW, canvasH };
 }
 
-// ============================================================
 // CARD — two separate boxes
 // image box slides in from left, info card from right
-// ============================================================
 function createCard() {
   // Image box — left side
   const imageBox = document.createElement("div");
@@ -234,7 +216,7 @@ function createCard() {
   imageBox.innerHTML = `<img id="card-image" src="" alt="" />`;
   document.body.appendChild(imageBox);
 
-  // Info card — right side
+  // right side info card 
   const card = document.createElement("div");
   card.id = "node-card";
   card.innerHTML = `
@@ -250,7 +232,7 @@ function createCard() {
   `;
   document.body.appendChild(card);
 
-  // Close both boxes together
+  // close both boxes together
   document.getElementById("card-close").addEventListener("click", () => {
     card.classList.remove("visible");
     imageBox.classList.remove("visible");
@@ -281,9 +263,7 @@ function showCard(node) {
   }
 }
 
-// ============================================================
-// DRAW GRAPH
-// ============================================================
+// d3 graph 
 function drawGraph({ nodes, links, canvasW, canvasH }) {
   const container = document.getElementById("graph");
   const viewW     = container.clientWidth;
@@ -431,16 +411,13 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
     .attr("class", "user-label")
     .attr("font-family", "inherit");
 
-  // Close both boxes on background click
+  // close both boxes on background click
   svg.on("click", () => {
     document.getElementById("node-card").classList.remove("visible");
     document.getElementById("node-image-box").classList.remove("visible");
   });
 }
 
-// ============================================================
-// INIT
-// ============================================================
 async function init() {
   createCard();
 
@@ -465,9 +442,7 @@ async function init() {
 
 window.addEventListener("load", init);
 
-// ============================================================
-// SIDEBAR
-// ============================================================
+// my sidebar 
 const aboutBtn     = document.querySelector('.about-btn');
 const aboutSidebar = document.querySelector('.about-sidebar');
 
@@ -480,3 +455,4 @@ document.querySelector('.close-btn').addEventListener('click', () => {
 });
 
 console.log("you found a hidden message! hey dev nerd :P");
+console.log("snooping through my code huh, i see you.")
