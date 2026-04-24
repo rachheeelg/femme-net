@@ -75,10 +75,10 @@ body {
     color: #FF6ED6;
     background-color: black;
     cursor: pointer;
-    border-radius: 50px;
+    border-radius: 25px;
     font-family: 'CatalogueLLTrialWeb-Regular', serif;
     font-size: 15px;
-    border: 1.5px dashed #FF6ED6;
+    border: 2px dashed #FF6ED6;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -86,7 +86,7 @@ body {
 .contribute-btn:hover {
     color: black;
     background-color: #FF6ED6;
-    border: 1.5px dashed black;
+    border: 2px dashed black;
     transform: scale(1.05);
 }
 
@@ -101,18 +101,18 @@ body {
   max-height: auto;
   overflow-y: auto;
   background: #FF6ED6;
-  border-radius: 20px;
+  border-radius: 25px;
   border: 2px dashed black;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 12;
   text-align: left;
   color: black;
   font-family: 'CatalogueLLTrialWeb-Regular', serif;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   padding: 2rem;
     scrollbar-width: none; 
   -ms-overflow-style: none; 
-  line-height: 1.5rem;
+  line-height: 1.6rem;
 }
 
 .sidebar {
@@ -136,7 +136,8 @@ body {
 .hidden-about {
   color: #FF6ED6;
   font-family: 'CatalogueLLTrialWeb-Regular', serif;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
+  line-height:1.6rem;
   transition: color 0.3s ease;
   cursor: default;
 }
@@ -170,7 +171,7 @@ body {
     transform: translateY(-50%) translateX(110%);
     width: 500px;
     background: #000000;
-    border: 5px dashed #ffffff;
+    border: 2px dashed #ffffff;
     border-radius: 25px;
     padding: 2rem;
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -209,7 +210,7 @@ body {
 #card-subheader {
     font-family: 'CatalogueLLTrialWeb-Regular', serif;
     font-size: 0.85rem;
-    color: #D9D9D9;
+    color: white;
     margin: 0 0 0.5rem 0;
     font-style: italic;
 }
@@ -217,7 +218,7 @@ body {
 #card-meta {
     font-family: 'CatalogueLLTrialWeb-Regular', serif;
     font-size: 0.75rem;
-    color: #D9D9D9;
+    color: white;
     margin-bottom: 0.7rem;
     display: flex;
     gap: 0.4rem;

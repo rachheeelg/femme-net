@@ -35,8 +35,8 @@ const USER_NODE_SVGS = {
 // category colors for card text
 const CATEGORY_COLORS = {
   "Computer Science Pioneers": "#ff6ed6",
-  "Cyberfeminist Narrators":   "#f9e955",
-  "CyberCommunity Builder":    "#7ff757",
+  "Cyberfeminist Narrators":   "#ff6ed6",
+  "CyberCommunity Builder":    "#ff6ed6",
 };
 
 // MOBILE DETECTION
@@ -207,8 +207,6 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
   return { nodes, links, canvasW, canvasH };
 }
 
-// CARD — two separate boxes
-// image box slides in from left, info card from right
 function createCard() {
   // Image box — left side
   const imageBox = document.createElement("div");
@@ -254,13 +252,29 @@ function showCard(node) {
 
   card.classList.add("visible");
 
-  if (node.image) {
-    img.src = node.image;
-    img.alt = node.title;
-    imageBox.classList.add("visible");
-  } else {
-    imageBox.classList.remove("visible");
-  }
+if (node.image) {
+  img.src = node.image;
+  img.alt = node.title;
+
+  imageBox.style.width  = "auto";
+  imageBox.style.height = "auto";
+  img.onload = () => {
+    const maxW = window.innerWidth * 0.45;
+    const maxH = window.innerHeight * 0.8;
+    const ratio = img.naturalWidth / img.naturalHeight;
+
+    let w = img.naturalWidth;
+    let h = img.naturalHeight;
+
+    if (w > maxW) { w = maxW; h = w / ratio; }
+    if (h > maxH) { h = maxH; w = h * ratio; }
+
+    imageBox.style.width  = `${w}px`;
+    imageBox.style.height = `${h}px`;
+  };
+
+  imageBox.classList.add("visible");
+}
 }
 
 // d3 graph 
@@ -299,10 +313,10 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
     .selectAll("line")
     .data(links)
     .join("line")
-    .attr("stroke", "#4a4a4a")
+    .attr("stroke", "#000000")
     .attr("stroke-opacity", 0)
     .attr("stroke-width", 1.5)
-    .attr("stroke-dasharray", "4,4")
+    .attr("stroke-dasharray", "3,6")
     .attr("x1", (d) => nodeById.get(d.source)?.x ?? 0)
     .attr("y1", (d) => nodeById.get(d.source)?.y ?? 0)
     .attr("x2", (d) => nodeById.get(d.target)?.x ?? 0)
@@ -390,7 +404,33 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
       if (event.defaultPrevented) return;
       event.stopPropagation();
       if (d.url) window.open(d.url, "_blank");
-    });
+    })
+    .on("mouseover", (event, d) => {
+  if (IS_MOBILE) return;
+  // show dashed line to parent
+  linkLines
+    .filter((l) => {
+      const targetId = l.target?.id ?? l.target;
+      return targetId === d.id;
+    })
+    .attr("stroke-opacity", 0.8);
+
+  // turn the parent ant pink
+  curatedGs
+    .filter((c) => c.id === d.parentId)
+    .selectAll("image")
+    .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
+
+  // turn itself pink too
+  d3.select(event.currentTarget).select("image")
+    .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
+})
+.on("mouseout", () => {
+  if (IS_MOBILE) return;
+  linkLines.attr("stroke-opacity", 0);
+  curatedGs.selectAll("image").style("filter", null);
+  userGs.selectAll("image").style("filter", null);
+});
 
   userGs.append("image")
     .attr("href", (d) => d.svgFile)
@@ -422,7 +462,7 @@ async function init() {
   createCard();
 
   document.getElementById("graph").innerHTML =
-    '<p style="color:#333;padding:2rem;font-family:inherit;">Loading...</p>';
+    '<p style="color:#000000;padding:2rem;font-family:inherit;">Loading...</p>';
 
   try {
     const { curated, userContributions } = await fetchData();
