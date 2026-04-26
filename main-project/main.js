@@ -5,14 +5,14 @@ const CACHE_KEY       = "femme_data_cache";
 const CACHE_TTL       = 5 * 60 * 1000;
 
 // LARGE NODE SVGs — 5 variants, rotates across all curated nodes
-
 const CATEGORY_SVGS = [
   "assets/black ant large-01.svg",
   "assets/black ant large-02.svg",
   "assets/black ant large-03.svg",
   "assets/black ant large-04.svg",
   "assets/black ant large-05.svg",
-]
+];
+
 // SMALL NODE SVGs — 3 black variants, same across all categories
 const USER_NODE_SVGS = {
   "Computer Science Pioneers": [
@@ -120,32 +120,37 @@ function refreshCacheInBackground() {
   setTimeout(() => { fetchFromNetwork().catch(() => {}); }, 100);
 }
 
-// graph data 
+// graph data — zigzag grid layout
 function buildGraphData(curated, userContributions, viewW, viewH) {
   const nodes = [];
   const links = [];
 
-  const padding     = 120;
-  const goldenAngle = 137.508 * (Math.PI / 180);
+  const padding = 120;
 
   const canvasW = IS_MOBILE ? viewW * 2.5 : viewW;
   const canvasH = IS_MOBILE ? viewH * 2.5 : viewH;
-  const cx      = canvasW / 2;
-  const cy      = canvasH / 2;
 
-  const scaleX = (canvasW / 2 - padding) / Math.sqrt(curated.length) * 1.2;
-  const scaleY = (canvasH / 2 - padding) / Math.sqrt(curated.length) * 1.1;
+  // zigzag grid config
+  const cols   = 5;
+  const rows   = Math.ceil(curated.length / cols);
+  const cellW  = (canvasW - padding * 2) / (cols - 1);
+  const cellH  = (canvasH - padding * 2) / Math.max(rows - 1, 1);
+  const zigzag = cellW * 0.3; // alternate rows shift right by this amount
 
+  // ── Curated (large) nodes — zigzag grid ──
   curated.forEach((row, i) => {
     const keys        = Object.keys(row);
     const categoryKey = keys[5];
     const imageKey    = keys[6];
 
-    const angle  = i * goldenAngle;
-    const radius = Math.sqrt(i + 1) * 1.4;
+    const col    = i % cols;
+    const rowIdx = Math.floor(i / cols);
 
-    const x = Math.max(padding, Math.min(canvasW - padding, cx + Math.cos(angle) * radius * scaleX));
-    const y = Math.max(padding, Math.min(canvasH - padding, cy + Math.sin(angle) * radius * scaleY));
+    // every other row shifts right
+    const offset = rowIdx % 2 === 0 ? 0 : zigzag;
+
+    const x = Math.max(padding, Math.min(canvasW - padding, padding + col * cellW + offset));
+    const y = Math.max(padding, Math.min(canvasH - padding, padding + rowIdx * cellH));
 
     const imageFile = row[imageKey] || "";
 
@@ -165,6 +170,7 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
     });
   });
 
+  // ── User (small) nodes — fanned around parent ──
   const userCountByParent = {};
 
   userContributions.forEach((row, i) => {
@@ -210,13 +216,11 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
 // CARD — two separate boxes
 // image box slides in from left, info card from right
 function createCard() {
-  // Image box — left side
   const imageBox = document.createElement("div");
   imageBox.id = "node-image-box";
   imageBox.innerHTML = `<img id="card-image" src="" alt="" />`;
   document.body.appendChild(imageBox);
 
-  // right side info card 
   const card = document.createElement("div");
   card.id = "node-card";
   card.innerHTML = `
@@ -232,7 +236,6 @@ function createCard() {
   `;
   document.body.appendChild(card);
 
-  // close both boxes together
   document.getElementById("card-close").addEventListener("click", () => {
     card.classList.remove("visible");
     imageBox.classList.remove("visible");
@@ -254,32 +257,35 @@ function showCard(node) {
 
   card.classList.add("visible");
 
-if (node.image) {
-  img.src = node.image;
-  img.alt = node.title;
+  if (node.image) {
+    img.src = node.image;
+    img.alt = node.title;
 
-  imageBox.style.width  = "auto";
-  imageBox.style.height = "auto";
-  img.onload = () => {
-    const maxW = window.innerWidth * 0.45;
-    const maxH = window.innerHeight * 0.8;
-    const ratio = img.naturalWidth / img.naturalHeight;
+    imageBox.style.width  = "auto";
+    imageBox.style.height = "auto";
 
-    let w = img.naturalWidth;
-    let h = img.naturalHeight;
+    img.onload = () => {
+      const maxW  = window.innerWidth * 0.45;
+      const maxH  = window.innerHeight * 0.8;
+      const ratio = img.naturalWidth / img.naturalHeight;
 
-    if (w > maxW) { w = maxW; h = w / ratio; }
-    if (h > maxH) { h = maxH; w = h * ratio; }
+      let w = img.naturalWidth;
+      let h = img.naturalHeight;
 
-    imageBox.style.width  = `${w}px`;
-    imageBox.style.height = `${h}px`;
-  };
+      if (w > maxW) { w = maxW; h = w / ratio; }
+      if (h > maxH) { h = maxH; w = h * ratio; }
 
-  imageBox.classList.add("visible");
+      imageBox.style.width  = `${w}px`;
+      imageBox.style.height = `${h}px`;
+    };
+
+    imageBox.classList.add("visible");
+  } else {
+    imageBox.classList.remove("visible");
+  }
 }
-}
 
-// d3 graph 
+// d3 graph
 function drawGraph({ nodes, links, canvasW, canvasH }) {
   const container = document.getElementById("graph");
   const viewW     = container.clientWidth;
@@ -332,21 +338,26 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
       .attr("y2", (d) => nodeById.get(d.target)?.y ?? 0);
   }
 
+  // drag — performance fix: updateLinks only on drag end
   function makeDrag() {
     if (IS_MOBILE) return d3.drag();
     return d3.drag()
       .on("start", (event) => {
         event.sourceEvent.stopPropagation();
+        linkLines.attr("stroke-opacity", 0);
       })
       .on("drag", (event, d) => {
         d.x = Math.max(40, Math.min(viewW - 40, event.x));
         d.y = Math.max(40, Math.min(viewH - 40, event.y));
         d3.select(event.sourceEvent.target.closest("g.curated-node, g.user-node"))
           .attr("transform", `translate(${d.x},${d.y})`);
+      })
+      .on("end", () => {
         updateLinks();
       });
   }
 
+  // curated (large) nodes
   const curatedGs = g
     .append("g")
     .selectAll("g.curated-node")
@@ -391,8 +402,10 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
     .attr("height", IS_MOBILE ? 70 : 90)
     .attr("x", IS_MOBILE ? -35 : -45)
     .attr("y", IS_MOBILE ? -35 : -45)
-    .attr("opacity", 1);
+    .attr("opacity", 1)
+    .style("animation-delay", (d, i) => `${i * 0.05}s`);
 
+  // user (small) nodes
   const userGs = g
     .append("g")
     .selectAll("g.user-node")
@@ -408,31 +421,28 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
       if (d.url) window.open(d.url, "_blank");
     })
     .on("mouseover", (event, d) => {
-  if (IS_MOBILE) return;
-  // show dashed line to parent
-  linkLines
-    .filter((l) => {
-      const targetId = l.target?.id ?? l.target;
-      return targetId === d.id;
+      if (IS_MOBILE) return;
+      linkLines
+        .filter((l) => {
+          const targetId = l.target?.id ?? l.target;
+          return targetId === d.id;
+        })
+        .attr("stroke-opacity", 0.8);
+
+      curatedGs
+        .filter((c) => c.id === d.parentId)
+        .selectAll("image")
+        .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
+
+      d3.select(event.currentTarget).select("image")
+        .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
     })
-    .attr("stroke-opacity", 0.8);
-
-  // turn the parent ant pink
-  curatedGs
-    .filter((c) => c.id === d.parentId)
-    .selectAll("image")
-    .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
-
-  // turn itself pink too
-  d3.select(event.currentTarget).select("image")
-    .style("filter", "brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1)");
-})
-.on("mouseout", () => {
-  if (IS_MOBILE) return;
-  linkLines.attr("stroke-opacity", 0);
-  curatedGs.selectAll("image").style("filter", null);
-  userGs.selectAll("image").style("filter", null);
-});
+    .on("mouseout", () => {
+      if (IS_MOBILE) return;
+      linkLines.attr("stroke-opacity", 0);
+      curatedGs.selectAll("image").style("filter", null);
+      userGs.selectAll("image").style("filter", null);
+    });
 
   userGs.append("image")
     .attr("href", (d) => d.svgFile)
@@ -440,7 +450,8 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
     .attr("height", IS_MOBILE ? 20 : 24)
     .attr("x", IS_MOBILE ? -10 : -12)
     .attr("y", IS_MOBILE ? -10 : -12)
-    .attr("opacity", 1);
+    .attr("opacity", 1)
+    .style("animation-delay", (d, i) => `${i * 0.05}s`);
 
   userGs.append("title").text((d) => d.title);
 
@@ -484,7 +495,7 @@ async function init() {
 
 window.addEventListener("load", init);
 
-// my sidebar 
+// my sidebar
 const aboutBtn     = document.querySelector('.about-btn');
 const aboutSidebar = document.querySelector('.about-sidebar');
 
@@ -497,4 +508,4 @@ document.querySelector('.close-btn').addEventListener('click', () => {
 });
 
 console.log("you found a hidden message! hey dev nerd :P");
-console.log("snooping through my code huh, i see you.")
+console.log("snooping through my code huh, i see you.");
