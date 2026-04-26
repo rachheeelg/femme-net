@@ -207,6 +207,8 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
   return { nodes, links, canvasW, canvasH };
 }
 
+// CARD — two separate boxes
+// image box slides in from left, info card from right
 function createCard() {
   // Image box — left side
   const imageBox = document.createElement("div");

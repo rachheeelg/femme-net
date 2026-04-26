@@ -112,11 +112,8 @@ body {
   padding: 2rem;
     scrollbar-width: none; 
   -ms-overflow-style: none; 
-  line-height: 1.6rem;
-}
-
-.sidebar {
-  transform: translateX(-50%) translateY(calc(100% + 15px));
+  line-height: 1.65rem;
+    transform: translateX(-50%) translateY(calc(100% + 15px));
 }
 
 .sidebar.open {
@@ -297,7 +294,6 @@ body {
 
 }
 
-/* Image box — separate from card, sits on the left */
 #node-image-box {
   position: fixed;
   top: 50%;
@@ -306,7 +302,7 @@ body {
   width: 500px;
   height: 500px;
   background: #000;
-  border: 5px dashed #ffffff;
+  border: 2px dashed #ffffff;
   border-radius: 25px;
   overflow: hidden;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
