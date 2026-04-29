@@ -125,17 +125,17 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
   const nodes = [];
   const links = [];
 
-  const padding = 120;
+  const padding = 80;
 
-  const canvasW = IS_MOBILE ? viewW * 2.5 : viewW;
-  const canvasH = IS_MOBILE ? viewH * 2.5 : viewH;
+  const canvasW = IS_MOBILE ? viewW * 1.5 : viewW;
+  const canvasH = IS_MOBILE ? viewH * 2   : viewH;
 
   // zigzag grid config
-  const cols   = 5;
+  const cols   = IS_MOBILE ? 3 : 5;
   const rows   = Math.ceil(curated.length / cols);
   const cellW  = (canvasW - padding * 2) / (cols - 1);
   const cellH  = (canvasH - padding * 2) / Math.max(rows - 1, 1);
-  const zigzag = cellW * 0.3; // alternate rows shift right by this amount
+  const zigzag = cellW * 0.3;
 
   // ── Curated (large) nodes — zigzag grid ──
   curated.forEach((row, i) => {
@@ -149,8 +149,9 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
     // every other row shifts right
     const offset = rowIdx % 2 === 0 ? 0 : zigzag;
 
-    const x = Math.max(padding, Math.min(canvasW - padding, padding + col * cellW + offset));
-    const y = Math.max(padding, Math.min(canvasH - padding, padding + rowIdx * cellH));
+    const jitter = IS_MOBILE ? 20 : 0;
+    const x = Math.max(padding, Math.min(canvasW - padding, padding + col * cellW + offset + (Math.random() - 0.5) * jitter));
+    const y = Math.max(padding, Math.min(canvasH - padding, padding + rowIdx * cellH + (Math.random() - 0.5) * jitter));
 
     const imageFile = row[imageKey] || "";
 
@@ -305,7 +306,7 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
     const initialY = -(canvasH / 2 - viewH / 2);
 
     const zoom = d3.zoom()
-      .scaleExtent([0.4, 2])
+      .scaleExtent([0.5, 2])
       .on("zoom",  (event) => { g.attr("transform", event.transform); })
       .on("start", () => svg.style("cursor", "grabbing"))
       .on("end",   () => svg.style("cursor", "grab"));
@@ -453,8 +454,6 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
     .attr("opacity", 1)
     .style("animation-delay", (d, i) => `${i * 0.05}s`);
 
-  userGs.append("title").text((d) => d.title);
-
   userGs.append("text")
     .text((d) => d.title)
     .attr("text-anchor", "middle")
@@ -497,7 +496,7 @@ window.addEventListener("load", init);
 
 // my sidebar
 const aboutBtn     = document.querySelector('.about-btn');
-const aboutSidebar = document.querySelector('.about-sidebar');
+const aboutSidebar = document.querySelector('.sidebar');
 
 aboutBtn.addEventListener('click', () => {
   aboutSidebar.classList.toggle('open');

@@ -1,25 +1,23 @@
-@font-face {
-    font-family: 'CatalogueLLTrialWeb-Regular';
-    src: url('CatalogueLLTrialWeb-Regular.woff2') format('woff2');
-    font-display: swap;
+*, *::before, *::after {
+    box-sizing: border-box;
 }
 
 h2 {
-  font-family: 'CatalogueLLTrialWeb-Regular', serif;
+  font-family: "filosofia-grand", serif;
+  font-weight: 700;
+  font-style: normal;
   font-size: 3rem;
   color: black;
   letter-spacing: -0.03em;
-}
-
-*, *::before, *::after {
-    box-sizing: border-box;
 }
 
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
+    font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 .noise {
@@ -76,8 +74,10 @@ body {
     background-color: black;
     cursor: pointer;
     border-radius: 25px;
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
-    font-size: 15px;
+    font-family: "filosofia-grand", serif;
+    font-weight: 4s00;
+    font-style: normal;
+    font-size: 20px;
     border: 2px dashed #FF6ED6;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
@@ -107,7 +107,9 @@ body {
   z-index: 12;
   text-align: left;
   color: black;
-  font-family: 'CatalogueLLTrialWeb-Regular', serif;
+  font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
   font-size: 1.4rem;
   padding: 2rem;
     scrollbar-width: none; 
@@ -132,7 +134,9 @@ body {
 }
 .hidden-about {
   color: #FF6ED6;
-  font-family: 'CatalogueLLTrialWeb-Regular', serif;
+  font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
   font-size: 1.4rem;
   line-height:1.6rem;
   transition: color 0.3s ease;
@@ -172,7 +176,9 @@ body {
     border-radius: 25px;
     padding: 2rem;
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
+    font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
     z-index: 6;
 }
 
@@ -197,24 +203,30 @@ body {
 }
 
 #card-title {
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
-    font-size: 1.4rem;
+    font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 2rem;
     color: #FF6ED6;
     margin: 0 0 0.4rem 0;
     line-height: 1.2;
 }
 
 #card-subheader {
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
-    font-size: 0.85rem;
+    font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1rem;
     color: white;
     margin: 0 0 0.5rem 0;
     font-style: italic;
 }
 
 #card-meta {
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
-    font-size: 0.75rem;
+    font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1rem;
     color: white;
     margin-bottom: 0.7rem;
     display: flex;
@@ -222,20 +234,23 @@ body {
 }
 
 #card-contribution {
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
-    font-size: 0.82rem;
+    font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1rem;
     color: white;
     line-height: 1.4;
     margin: 0;
 }
 
 #card-category {
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
-    font-size: 0.7rem;
+    font-family: "filosofia-basic-small-caps", serif;
+  font-weight: 400;
+  font-style: normal;
+    font-size: 1rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-top: 0.8rem;
-    font-weight: 600;
 }
 
 
@@ -247,7 +262,9 @@ body {
     opacity: 0;
     transition: opacity 0.2s;
     pointer-events: none;
-    font-family: 'CatalogueLLTrialWeb-Regular', serif;
+    font-family: "filosofia-grand", serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 .user-node:hover .user-label {
