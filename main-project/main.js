@@ -4,7 +4,7 @@ const USER_CSV_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuAwVS
 const CACHE_KEY       = "femme_data_cache";
 const CACHE_TTL       = 5 * 60 * 1000;
 
-// LARGE NODE SVGs — 5 variants, rotates across all curated nodes
+// LARGE NODE SVGs
 const CATEGORY_SVGS = [
   "assets/black ant large-01.svg",
   "assets/black ant large-02.svg",
@@ -13,7 +13,7 @@ const CATEGORY_SVGS = [
   "assets/black ant large-05.svg",
 ];
 
-// SMALL NODE SVGs — 3 black variants, same across all categories
+// SMALL NODE SVGs
 const USER_NODE_SVGS = {
   "Computer Science Pioneers": [
     "assets/black-ants-01.svg",
@@ -32,14 +32,12 @@ const USER_NODE_SVGS = {
   ],
 };
 
-// category colors for card text
 const CATEGORY_COLORS = {
   "Computer Science Pioneers": "#ff6ed6",
   "Cyberfeminist Narrators":   "#ff6ed6",
   "CyberCommunity Builder":    "#ff6ed6",
 };
 
-// MOBILE DETECTION
 const IS_MOBILE = window.innerWidth <= 768;
 
 // CSV PARSER
@@ -80,7 +78,7 @@ function parseCSVLine(line) {
   return result;
 }
 
-// cache data to reduce g sheets loading time
+// cache data
 async function fetchData() {
   try {
     const cached = localStorage.getItem(CACHE_KEY);
@@ -120,24 +118,28 @@ function refreshCacheInBackground() {
   setTimeout(() => { fetchFromNetwork().catch(() => {}); }, 100);
 }
 
-// graph data — zigzag grid layout
+// ============================================================
+// BUILD GRAPH DATA
+// Desktop: tighter padding (60), zigzag both directions
+// Mobile: larger pannable canvas, smaller padding
+// ============================================================
 function buildGraphData(curated, userContributions, viewW, viewH) {
   const nodes = [];
   const links = [];
 
-  const padding = 80;
+  const padding = IS_MOBILE ? 80  : 100;
+  const canvasW = IS_MOBILE ? viewW * 2 : viewW;
+  const canvasH = IS_MOBILE ? viewH * 3 : viewH;
 
-  const canvasW = IS_MOBILE ? viewW * 1.5 : viewW;
-  const canvasH = IS_MOBILE ? viewH * 2   : viewH;
+  const cols = IS_MOBILE ? 3 : 5;
+  const rows = Math.ceil(curated.length / cols);
 
-  // zigzag grid config
-  const cols   = IS_MOBILE ? 3 : 5;
-  const rows   = Math.ceil(curated.length / cols);
-  const cellW  = (canvasW - padding * 2) / (cols - 1);
+  const cellW  = (canvasW - padding * 2) / Math.max(cols - 1, 1);
   const cellH  = (canvasH - padding * 2) / Math.max(rows - 1, 1);
   const zigzag = cellW * 0.3;
+  const jitter = IS_MOBILE ? 30 : 80;
 
-  // ── Curated (large) nodes — zigzag grid ──
+  // ── Curated (large) nodes ──
   curated.forEach((row, i) => {
     const keys        = Object.keys(row);
     const categoryKey = keys[5];
@@ -146,12 +148,14 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
     const col    = i % cols;
     const rowIdx = Math.floor(i / cols);
 
-    // every other row shifts right
-    const offset = rowIdx % 2 === 0 ? 0 : zigzag;
+    // alternate left/right by half-zigzag so BOTH edges zigzag
+    const offset = rowIdx % 2 === 0 ? -zigzag / 2 : zigzag / 2;
 
-    const jitter = IS_MOBILE ? 20 : 0;
-    const x = Math.max(padding, Math.min(canvasW - padding, padding + col * cellW + offset + (Math.random() - 0.5) * jitter));
-    const y = Math.max(padding, Math.min(canvasH - padding, padding + rowIdx * cellH + (Math.random() - 0.5) * jitter));
+    const baseX = padding + col * cellW + offset;
+    const baseY = padding + rowIdx * cellH;
+
+    const x = Math.max(padding, Math.min(canvasW - padding, baseX + (Math.random() - 0.5) * jitter));
+    const y = Math.max(padding, Math.min(canvasH - padding, baseY + (Math.random() - 0.5) * jitter));
 
     const imageFile = row[imageKey] || "";
 
@@ -214,8 +218,7 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
   return { nodes, links, canvasW, canvasH };
 }
 
-// CARD — two separate boxes
-// image box slides in from left, info card from right
+// CARD
 function createCard() {
   const imageBox = document.createElement("div");
   imageBox.id = "node-image-box";
@@ -301,17 +304,18 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
 
   const g = svg.append("g");
 
+  // ── Mobile pan + pinch zoom ──
   if (IS_MOBILE) {
     const initialX = -(canvasW / 2 - viewW / 2);
     const initialY = -(canvasH / 2 - viewH / 2);
 
     const zoom = d3.zoom()
       .scaleExtent([0.5, 2])
-      .on("zoom",  (event) => { g.attr("transform", event.transform); })
-      .on("start", () => svg.style("cursor", "grabbing"))
-      .on("end",   () => svg.style("cursor", "grab"));
+      .on("zoom", (event) => { g.attr("transform", event.transform); });
 
-    svg.call(zoom);
+    svg.call(zoom)
+       .on("dblclick.zoom", null); // prevent double-tap zoom interfering
+
     svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY));
   }
 
@@ -339,7 +343,7 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
       .attr("y2", (d) => nodeById.get(d.target)?.y ?? 0);
   }
 
-  // drag — performance fix: updateLinks only on drag end
+  // drag (desktop only)
   function makeDrag() {
     if (IS_MOBILE) return d3.drag();
     return d3.drag()
@@ -348,8 +352,8 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
         linkLines.attr("stroke-opacity", 0);
       })
       .on("drag", (event, d) => {
-        d.x = Math.max(40, Math.min(viewW - 40, event.x));
-        d.y = Math.max(40, Math.min(viewH - 40, event.y));
+        d.x = Math.max(40, Math.min(canvasW - 40, event.x));
+        d.y = Math.max(40, Math.min(canvasH - 40, event.y));
         d3.select(event.sourceEvent.target.closest("g.curated-node, g.user-node"))
           .attr("transform", `translate(${d.x},${d.y})`);
       })
@@ -463,11 +467,13 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
     .attr("class", "user-label")
     .attr("font-family", "inherit");
 
-  // close both boxes on background click
-  svg.on("click", () => {
-    document.getElementById("node-card").classList.remove("visible");
-    document.getElementById("node-image-box").classList.remove("visible");
-  });
+  // background click closes cards (desktop only — mobile uses pan)
+  if (!IS_MOBILE) {
+    svg.on("click", () => {
+      document.getElementById("node-card").classList.remove("visible");
+      document.getElementById("node-image-box").classList.remove("visible");
+    });
+  }
 }
 
 async function init() {
@@ -494,7 +500,7 @@ async function init() {
 
 window.addEventListener("load", init);
 
-// my sidebar
+// sidebar
 const aboutBtn     = document.querySelector('.about-btn');
 const aboutSidebar = document.querySelector('.sidebar');
 

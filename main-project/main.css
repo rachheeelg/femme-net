@@ -169,7 +169,7 @@ body {
     position: fixed;
     top: 50%;
     right: 2rem;
-    transform: translateY(-50%) translateX(110%);
+    transform: translateY(-50%) translateX(120%);
     width: 500px;
     background: #000000;
     border: 2px dashed #ffffff;
@@ -287,7 +287,7 @@ body {
         max-height: 60vh;
         overflow-y: auto;
         transform: translateY(110%);
-        border-top: 5px dashed #ffffff;
+        border-top: 2px dashed #ffffff;
         border-left: none;
         border-right: none;
         border-bottom: none;
@@ -307,6 +307,7 @@ body {
     .contribute-btn {
         padding: 10px 14px;
         font-size: 13px;
+        border: 2px dashed #FF6ED6;
     }
 
 }
@@ -315,14 +316,14 @@ body {
   position: fixed;
   top: 50%;
   left: 2rem;
-  transform: translateY(-50%) translateX(-110%);
+  transform: translateY(-50%) translateX(-150%);
   width: 500px;
   height: 500px;
   background: #000;
   border: 2px dashed #ffffff;
   border-radius: 25px;
   overflow: hidden;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 6;
 }
 
