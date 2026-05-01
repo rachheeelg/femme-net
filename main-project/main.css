@@ -41,7 +41,6 @@ body {
     animation: noise 0.75s steps(1) infinite;
 }
 
-
 #graph {
     position: fixed;
     inset: 0;
@@ -56,7 +55,6 @@ body {
     width: 100%;
     height: 100%;
 }
-
 
 .buttons {
     position: fixed;
@@ -75,7 +73,7 @@ body {
     cursor: pointer;
     border-radius: 25px;
     font-family: "filosofia-grand", serif;
-    font-weight: 4s00;
+    font-weight: 400;
     font-style: normal;
     font-size: 20px;
     border: 2px dashed #FF6ED6;
@@ -95,10 +93,8 @@ body {
   top: 15px;
   bottom: 15px;
   left: 50%;
-  transform: translateX(-50%) translateY(100%);
   width: 650px;
   gap: 0.5rem;
-  max-height: auto;
   overflow-y: auto;
   background: #FF6ED6;
   border-radius: 25px;
@@ -108,14 +104,14 @@ body {
   text-align: left;
   color: black;
   font-family: "filosofia-grand", serif;
-    font-weight: 400;
-    font-style: normal;
+  font-weight: 400;
+  font-style: normal;
   font-size: 1.4rem;
   padding: 2rem;
-    scrollbar-width: none; 
-  -ms-overflow-style: none; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   line-height: 1.65rem;
-    transform: translateX(-50%) translateY(calc(100% + 15px));
+  transform: translateX(-50%) translateY(calc(100% + 15px));
 }
 
 .sidebar.open {
@@ -126,31 +122,29 @@ body {
   display: block;
   margin: 0 auto;
 }
+
 .sidebar::-webkit-scrollbar {
-  display: none; 
+  display: none;
 }
+
 .sidebar h3 {
     text-align: center;
 }
+
 .hidden-about {
   color: #FF6ED6;
   font-family: "filosofia-grand", serif;
-    font-weight: 400;
-    font-style: normal;
+  font-weight: 400;
+  font-style: normal;
   font-size: 1.4rem;
-  line-height:1.6rem;
+  line-height: 1.6rem;
   transition: color 0.3s ease;
   cursor: default;
 }
 
 .hidden-about:hover {
-  color: black; 
+  color: black;
 }
-
-.sidebar.open {
-  transform: translateX(-50%) translateY(0%);
-}
-
 
 .close-btn {
   position: absolute;
@@ -164,26 +158,6 @@ body {
   cursor: pointer;
   padding: 0;
   line-height: 1;
-}
-#node-card {
-    position: fixed;
-    top: 50%;
-    right: 2rem;
-    transform: translateY(-50%) translateX(120%);
-    width: 500px;
-    background: #000000;
-    border: 2px dashed #ffffff;
-    border-radius: 25px;
-    padding: 2rem;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: "filosofia-grand", serif;
-    font-weight: 400;
-    font-style: normal;
-    z-index: 6;
-}
-
-#node-card.visible {
-    transform: translateY(-50%) translateX(0%);
 }
 
 #card-close {
@@ -245,14 +219,13 @@ body {
 
 #card-category {
     font-family: "filosofia-basic-small-caps", serif;
-  font-weight: 400;
-  font-style: normal;
+    font-weight: 400;
+    font-style: normal;
     font-size: 1rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-top: 0.8rem;
 }
-
 
 .curated-node:hover image {
     filter: brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1);
@@ -271,47 +244,9 @@ body {
     opacity: 1;
 }
 
-
-@media (max-width: 768px) {
-
-    .sidebar {
-        width: 100%;
-    }
-
-    #node-card {
-        top: auto;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        width: 100%;
-        max-height: 60vh;
-        overflow-y: auto;
-        transform: translateY(110%);
-        border-top: 2px dashed #ffffff;
-        border-left: none;
-        border-right: none;
-        border-bottom: none;
-        border-radius: 16px 16px 0 0;
-    }
-
-    #node-card.visible {
-        transform: translateY(0%);
-    }
-
-    .buttons {
-        top: 0.75rem;
-        right: 0.75rem;
-    }
-
-    .about-btn,
-    .contribute-btn {
-        padding: 10px 14px;
-        font-size: 13px;
-        border: 2px dashed #FF6ED6;
-    }
-
-}
-
+/* ============================================================
+   NODE IMAGE BOX — DESKTOP
+   ============================================================ */
 #node-image-box {
   position: fixed;
   top: 50%;
@@ -327,6 +262,10 @@ body {
   z-index: 6;
 }
 
+#node-image-box.visible {
+  transform: translateY(-50%) translateX(0%);
+}
+
 #card-image {
   width: 100%;
   height: 100%;
@@ -334,24 +273,108 @@ body {
   display: block;
 }
 
-#node-image-box.visible {
+/* ============================================================
+   NODE CARD — DESKTOP
+   ============================================================ */
+#node-card {
+  position: fixed;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%) translateX(120%);
+  width: 500px;
+  background: #000000;
+  border: 2px dashed #ffffff;
+  border-radius: 25px;
+  padding: 2rem;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: "filosofia-grand", serif;
+  font-weight: 400;
+  font-style: normal;
+  z-index: 6;
+}
+
+#node-card.visible {
   transform: translateY(-50%) translateX(0%);
 }
 
+/* ============================================================
+   MOBILE
+   ============================================================ */
 @media (max-width: 768px) {
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .buttons {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .about-btn,
+  .contribute-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+    border: 2px dashed #FF6ED6;
+  }
+
   #node-image-box {
-    top: auto;
-    bottom: 0;
+    position: fixed;
+    top: 0;
     left: 0;
     right: 0;
     width: 100%;
-    max-width: 100%;
-    height: 40vh;
-    transform: translateY(110%);
-    border-radius: 16px 16px 0 0;
+    height: 60vh;
+    border: none;
+    border-radius: 0;
+    z-index: 7;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    transform: none !important;
   }
 
   #node-image-box.visible {
-    transform: translateY(0%);
+    opacity: 1;
+    pointer-events: all;
+    transform: none !important;
   }
+
+  #card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  #node-card {
+    position: fixed;
+    top: 60vh;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    overflow-y: auto;
+    background: #000000;
+    border: none;
+    border-top: 2px dashed #ffffff;
+    border-radius: 0;
+    padding: 1.5rem;
+    pointer-events: none;
+    z-index: 9;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    transform: none !important;
+  }
+
+  #node-card.visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: none !important;
+    top: 60vh !important;
+    bottom: 0 !important;
+  }
+
 }

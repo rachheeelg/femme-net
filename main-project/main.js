@@ -226,7 +226,11 @@ function createCard() {
   imageBox.innerHTML = `<img id="card-image" src="" alt="" />`;
   document.body.appendChild(imageBox);
 
-  const card = document.createElement("div");
+
+  // force repaint so the initial transform is applied before transition starts
+  imageBox.getBoundingClientRect();
+
+   const card = document.createElement("div");
   card.id = "node-card";
   card.innerHTML = `
     <button id="card-close">✕</button>
@@ -241,6 +245,9 @@ function createCard() {
   `;
   document.body.appendChild(card);
 
+  // force repaint on card too
+  card.getBoundingClientRect();
+
   document.getElementById("card-close").addEventListener("click", () => {
     card.classList.remove("visible");
     imageBox.classList.remove("visible");
@@ -248,7 +255,7 @@ function createCard() {
 }
 
 function showCard(node) {
-  if (!node.title) return; // skip empty nodes
+  if (!node.title) return;
   const card     = document.getElementById("node-card");
   const imageBox = document.getElementById("node-image-box");
   const img      = document.getElementById("card-image");
@@ -261,30 +268,40 @@ function showCard(node) {
   document.getElementById("card-category").textContent     = node.category;
   document.getElementById("card-category").style.color     = CATEGORY_COLORS[node.category] || "#000";
 
+  if (IS_MOBILE) {
+    imageBox.style.cssText = "";
+    card.style.cssText = "";
+    img.onload = null;
+    img.src = node.image || "";
+    img.alt = node.title;
+    if (node.image) {
+      imageBox.classList.add("visible");
+    } else {
+      imageBox.classList.remove("visible");
+    }
+    card.classList.add("visible");
+    return;
+  }
+
+  // desktop only below
   card.classList.add("visible");
-  console.log("image path:", node.image);
+
   if (node.image) {
     img.src = node.image;
     img.alt = node.title;
-
     imageBox.style.width  = "auto";
     imageBox.style.height = "auto";
-
     img.onload = () => {
       const maxW  = window.innerWidth * 0.45;
       const maxH  = window.innerHeight * 0.8;
       const ratio = img.naturalWidth / img.naturalHeight;
-
       let w = img.naturalWidth;
       let h = img.naturalHeight;
-
       if (w > maxW) { w = maxW; h = w / ratio; }
       if (h > maxH) { h = maxH; w = h * ratio; }
-
       imageBox.style.width  = `${w}px`;
       imageBox.style.height = `${h}px`;
     };
-
     imageBox.classList.add("visible");
   } else {
     imageBox.classList.remove("visible");
