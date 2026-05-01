@@ -271,7 +271,8 @@ function showCard(node) {
   if (IS_MOBILE) {
     imageBox.style.cssText = "";
     card.style.cssText = "";
-    img.onload = null;
+    img.style.opacity = "0";
+    img.onload = () => { img.style.opacity = "1"; };
     img.src = node.image || "";
     img.alt = node.title;
     if (node.image) {
@@ -283,11 +284,11 @@ function showCard(node) {
     return;
   }
 
-  // desktop only below
+  // desktop
   card.classList.add("visible");
 
   if (node.image) {
-    img.src = node.image;
+    img.style.opacity = "0";
     img.alt = node.title;
     imageBox.style.width  = "auto";
     imageBox.style.height = "auto";
@@ -301,13 +302,15 @@ function showCard(node) {
       if (h > maxH) { h = maxH; w = h * ratio; }
       imageBox.style.width  = `${w}px`;
       imageBox.style.height = `${h}px`;
+      img.style.opacity = "1";
+      imageBox.classList.add("visible");
     };
-    imageBox.classList.add("visible");
+    img.src = node.image;
+    if (img.complete) img.onload();
   } else {
     imageBox.classList.remove("visible");
   }
 }
-
 // d3 graph
 function drawGraph({ nodes, links, canvasW, canvasH }) {
   const container = document.getElementById("graph");
