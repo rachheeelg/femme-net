@@ -141,9 +141,10 @@ function buildGraphData(curated, userContributions, viewW, viewH) {
 
   // ── Curated (large) nodes ──
   curated.forEach((row, i) => {
+  if (!row["Title"] || row["Title"].trim() === "") return; // skip blank rows
     const keys        = Object.keys(row);
     const categoryKey = keys[5];
-    const imageKey    = keys[6];
+    const imageKey = keys[6];
 
     const col    = i % cols;
     const rowIdx = Math.floor(i / cols);
@@ -247,6 +248,7 @@ function createCard() {
 }
 
 function showCard(node) {
+  if (!node.title) return; // skip empty nodes
   const card     = document.getElementById("node-card");
   const imageBox = document.getElementById("node-image-box");
   const img      = document.getElementById("card-image");
@@ -260,7 +262,7 @@ function showCard(node) {
   document.getElementById("card-category").style.color     = CATEGORY_COLORS[node.category] || "#000";
 
   card.classList.add("visible");
-
+  console.log("image path:", node.image);
   if (node.image) {
     img.src = node.image;
     img.alt = node.title;
