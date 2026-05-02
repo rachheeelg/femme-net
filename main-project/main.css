@@ -231,17 +231,22 @@ body {
     filter: brightness(0) saturate(100%) invert(63%) sepia(60%) saturate(500%) hue-rotate(280deg) brightness(1.1);
 }
 
-.user-label {
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-    font-family: "filosofia-grand", serif;
-    font-weight: 400;
-    font-style: normal;
+.user-label,
+.user-label-bg {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
 }
 
-.user-node:hover .user-label {
-    opacity: 1;
+.user-node:hover .user-label,
+.user-node:hover .user-label-bg {
+  opacity: 1;
+}
+
+.user-label {
+  font-family: "filosofia-grand", serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 /* ============================================================

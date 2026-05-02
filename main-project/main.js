@@ -480,14 +480,35 @@ function drawGraph({ nodes, links, canvasW, canvasH }) {
     .attr("opacity", 1)
     .style("animation-delay", (d, i) => `${i * 0.05}s`);
 
-  userGs.append("text")
-    .text((d) => d.title)
-    .attr("text-anchor", "middle")
-    .attr("dy", 22)
-    .attr("font-size", "9px")
-    .attr("fill", "#333")
-    .attr("class", "user-label")
-    .attr("font-family", "inherit");
+  // label text first so we can measure it
+const labelText = userGs.append("text")
+  .text((d) => d.title)
+  .attr("text-anchor", "middle")
+  .attr("dy", 28)
+  .attr("font-size", "12px")
+  .attr("fill", "#FF6ED6")
+  .attr("class", "user-label")
+  .attr("font-family", "inherit");
+
+// background rect sized to text after render
+userGs.append("rect")
+  .attr("class", "user-label-bg")
+  .attr("rx", 10)
+  .attr("fill", "black")
+  .attr("stroke", "#FF6ED6")
+  .attr("stroke-dasharray", "3,3")
+  .attr("stroke-width", 2)
+  .each(function(d, i) {
+    const textEl = this.parentNode.querySelector("text.user-label");
+    const bbox = textEl.getBBox();
+    const pad = 8;
+    d3.select(this)
+      .attr("x", bbox.x - pad)
+      .attr("y", bbox.y - pad / 2)
+      .attr("width", bbox.width + pad * 2)
+      .attr("height", bbox.height + pad);
+    this.parentNode.insertBefore(this, textEl);
+  });
 
   // background click closes cards (desktop only — mobile uses pan)
   if (!IS_MOBILE) {
