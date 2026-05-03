@@ -4,34 +4,6 @@ body {
     overflow: hidden;
 }
 
-.enter-button {
-    position: absolute;
-    bottom: 4rem;     
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-    padding: 15px;
-    color: #FF6ED6;
-    background-color: black;
-    cursor: pointer;
-    border-radius: 25px;
-    font-family: "filosofia-grand", serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 20px;
-    border: 2px dashed #FF6ED6;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-
-.enter-button:hover {
-    color: black;
-    background-color: #FF6ED6;
-    border: 2px dashed black;
-    transform: translateX(-50%) scale(1.6);
-    transition: all 0.6s ease-in-out;
-}
-
-
 
 .animation {
     position: relative;
@@ -54,13 +26,14 @@ body {
     width: 150%;        
     height: 150%;       
     background: 
-        url('noise.png'),
         radial-gradient(circle, 
             rgba(255, 110, 214, 1) 0%, 
             rgba(255, 110, 214, 0.6) 40%, 
             rgba(220, 220, 220, 0) 70%
         );
-    background-size: 150px 150px, cover;
+    background-size: 2000px 2000px, cover;
+    background-repeat: no-repeat, no-repeat;
+    background-position: center, center;
     background-blend-mode: overlay;
     animation: pulse 2s ease-in-out infinite;
     z-index: 0;

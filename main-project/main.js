@@ -544,15 +544,25 @@ async function init() {
 window.addEventListener("load", init);
 
 // sidebar
-const aboutBtn     = document.querySelector('.about-btn');
-const aboutSidebar = document.querySelector('.sidebar');
+const aboutBtn       = document.querySelector('.about-btn');
+const funNewsBtn     = document.querySelector('.fun-news-btn');
+const aboutSidebar   = document.querySelector('.about-sidebar');
+const funNewsSidebar = document.querySelector('.fun-news-sidebar');
 
 aboutBtn.addEventListener('click', () => {
   aboutSidebar.classList.toggle('open');
+  funNewsSidebar.classList.remove('open');
 });
 
-document.querySelector('.close-btn').addEventListener('click', () => {
+funNewsBtn.addEventListener('click', () => {
+  funNewsSidebar.classList.toggle('open');
   aboutSidebar.classList.remove('open');
+});
+
+document.querySelectorAll('.close-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.closest('.sidebar').classList.remove('open');
+  });
 });
 
 console.log("you found a hidden message! hey dev nerd :P");

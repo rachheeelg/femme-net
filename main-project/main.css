@@ -66,7 +66,8 @@ body {
 }
 
 .about-btn,
-.contribute-btn {
+.contribute-btn,
+.fun-news-btn {
     padding: 15px;
     color: #FF6ED6;
     background-color: black;
@@ -81,6 +82,7 @@ body {
 }
 
 .about-btn:hover,
+.fun-news-btn:hover,
 .contribute-btn:hover {
     color: black;
     background-color: #FF6ED6;
