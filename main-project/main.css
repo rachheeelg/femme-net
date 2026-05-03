@@ -90,6 +90,20 @@ body {
     transform: scale(1.05);
 }
 
+.buttons a {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .about-btn,
+    .contribute-btn,
+    .fun-news-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
 .sidebar {
   position: fixed;
   top: 15px;
